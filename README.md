@@ -1,1 +1,1 @@
-# Bagonizer
+# Bagonizer WoW
