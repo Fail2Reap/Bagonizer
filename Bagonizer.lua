@@ -11,6 +11,8 @@ local AddonPath = "Interface\\AddOns\\Bagonizer\\"
 local Config = {}
 local Show = {}
 local Hide = {}
+local BgnzrDB = {}
+
 
 -- ============================================================================
 -- Utility Functions
@@ -33,14 +35,15 @@ end
 function Config.Load()
     if not BagonizerDB then
         BagonizerDB = {
-            ["threshhold"] = 5000000, -- stored in copper
-            ["price_source"] = "DBMarket"
+            ["threshold"] = 5000000, -- stored in copper
+            ["priceSource"] = "DBMarket"
         }
         BgnzrDB = BagonizerDB
     else
         BgnzrDB = BagonizerDB
     end
 end
+
 
 -- ============================================================================
 -- Module Functions
@@ -129,14 +132,14 @@ local function markItems()
                 end
 
                 local itemString = TSM_API.ToItemString(itemLink)
-                local itemValue = TSM_API.GetCustomPriceValue("DBMarket", itemString)
+                local itemValue = TSM_API.GetCustomPriceValue(BgnzrDB.priceSource, itemString)
                 local itemDestroyValue = TSM_API.GetCustomPriceValue("Destroy", itemString)
 
                 if sellPrice < 1 then -- is item vendorable? noValue doesn't catch Legendary base items or marks of honor
                     break
                 end
 
-                if itemValue and itemValue > BgnzrDB.threshhold then -- should item be auctioned?
+                if itemValue and itemValue > BgnzrDB.threshold then -- should item be auctioned?
                     break
                 end
 
@@ -158,7 +161,7 @@ end
 
 -- Handle events
 local function handleEvent(self, event, addonName)
-    if event == "ADDON_LOADED" and addonName == "DungeonFarmer" then
+    if event == "ADDON_LOADED" and addonName == "Bagonizer" then
         bgnzr:UnregisterEvent("ADDON_LOADED")
         Config.Load()
 
@@ -198,30 +201,30 @@ local function DispatchCommand(message, commandTable)
 end
 
 local Commands = {
-    ["threshhold"] = function(arg)
+    ["threshold"] = function(arg)
         if tonumber(arg) then
-            BgnzrDB.threshhold = arg * 10000
-            print("Threshhold was updated to: " .. tostring(TSM_API.FormatMoneyString(BgnzrDB.threshhold)))
+            BgnzrDB.threshold = arg * 10000
+            print("Threshold was updated to: " .. tostring(TSM_API.FormatMoneyString(BgnzrDB.threshold)))
             markItems()
         else
-            print("Threshhold: " .. tostring(TSM_API.FormatMoneyString(BgnzrDB.threshhold)))
+            print("Threshold: " .. tostring(TSM_API.FormatMoneyString(BgnzrDB.threshold)))
         end
     end,
     ["pricesource"] = function(arg)
         if arg then
-            BgnzrDB.price_source = arg
-            print("Price Source was updated to: " .. tostring(BgnzrDB.price_source))
+            BgnzrDB.priceSource = arg
+            print("Price Source was updated to: " .. tostring(BgnzrDB.priceSource))
             markItems()
         else
-            print("Price Source: " .. tostring(BgnzrDB.price_source))
+            print("Price Source: " .. tostring(BgnzrDB.priceSource))
         end
     end,
-    ["help"] = "Use /df threshhold <value> to set a gold value which will be used to mark items."
+    ["help"] = "Bagonizer Help:\n  /bgr threshold <value> - Items below this gold value will be checked for vendoring or disenchanting.\n  /bgr pricesource <value> - The price source used to mark items."
 }
 
-SLASH_DUNGEONFARMER1 = "/dungeonfarmer"
-SLASH_DUNGEONFARMER2 = "/df"
-SlashCmdList["DUNGEONFARMER"] = function(message)
+SLASH_BAGONIZER1 = "/bagonizer"
+SLASH_BAGONIZER2 = "/bgr"
+SlashCmdList["BAGONIZER"] = function(message)
     DispatchCommand(message, Commands)
 end
 
