@@ -1,0 +1,9 @@
+## Interface: 90002
+## Version: v1.0.0
+## Title: Bagonizer
+## Author: Fail2Reap
+## Notes: Helping transmog farmers organise their inventory.
+## SavedVariables: BagonizerDB
+## X-Category: Inventory
+
+Bagonizer.lua
